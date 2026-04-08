@@ -1,0 +1,125 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: Patient Risk Alerts
+    folder: Patient Monitoring
+    interval: 30s
+    rules:
+      - uid: high-risk-alert
+        title: High Risk Score Detected
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: ""
+            model:
+              datasource:
+                type: influxdb
+              query: |
+                from(bucket: "patient_vitals")
+                  |> range(start: -2m)
+                  |> filter(fn: (r) => r._measurement == "patient_vitals" and r._field == "risk_score")
+                  |> last()
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0.7]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+              refId: B
+              type: reduce
+              reducer: last
+              expression: A
+          - refId: C
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0.7]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+              refId: C
+              type: threshold
+              expression: B
+        noDataState: NoData
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Patient risk score exceeded 0.7"
+          description: "A patient has been classified as high risk with a score above 0.7 for more than 1 minute."
+        labels:
+          severity: critical
+
+      - uid: low-spo2-alert
+        title: Low SpO2 Detected
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: ""
+            model:
+              datasource:
+                type: influxdb
+              query: |
+                from(bucket: "patient_vitals")
+                  |> range(start: -2m)
+                  |> filter(fn: (r) => r._measurement == "patient_vitals" and r._field == "spo2")
+                  |> last()
+              refId: A
+          - refId: B
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: reduce
+              reducer: last
+              expression: A
+          - refId: C
+            relativeTimeRange:
+              from: 120
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [90]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [B]
+              refId: C
+              type: threshold
+              expression: B
+        noDataState: NoData
+        execErrState: Error
+        for: 30s
+        annotations:
+          summary: "Patient SpO2 dropped below 90%"
+          description: "A patient's oxygen saturation has dropped below 90% — critical level."
+        labels:
+          severity: critical

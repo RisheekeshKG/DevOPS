@@ -82,9 +82,55 @@ services:
       INFLUXDB_BUCKET: patient_vitals
       WORKFLOW_DURATION_SECONDS: 0
       WORKFLOW_INTERVAL_SECONDS: 1.0
+    volumes:
+      - model_artifacts:/app/models
     mem_limit: 256m
     restart: on-failure
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    depends_on:
+      - influxdb
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
+
+  retrain:
+    build:
+      context: .
+      dockerfile: retrain/Dockerfile
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: devops-token
+      INFLUXDB_ORG: devops-org
+      INFLUXDB_BUCKET: patient_vitals
+      RETRAIN_QUERY_RANGE: "-7d"
+      ORIGINAL_CSV_PATH: /app/human_vital_signs_dataset_2024.csv
+      MODEL_PATH: /app/models/human_vital_sign_model2.pth
+      SCALER_PATH: /app/models/scaler2.pkl
+      LABEL_ENCODER_PATH: /app/models/label_encoder2.pkl
+      RETRAIN_MODE: schedule
+      RETRAIN_INTERVAL_SECONDS: "604800"
+      RETRAIN_INITIAL_DELAY_SECONDS: "60"
+    volumes:
+      - model_artifacts:/app/models
+      - ./human_vital_signs_dataset_2024.csv:/app/human_vital_signs_dataset_2024.csv:ro
+    restart: unless-stopped
 
 volumes:
   influxdb_data:
   influxdb_config:
+  grafana_data:
+  model_artifacts:
+
