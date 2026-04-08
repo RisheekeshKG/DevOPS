@@ -29,8 +29,9 @@ class InfluxDBWriter:
         bed = self._escape(reading.get("bed", "unknown"))
         unit = self._escape(reading.get("unit", "general_ward"))
         scenario = self._escape(reading.get("scenario", "general_care"))
+        risk_label = self._escape(label)
         measurement = "patient_vitals"
-        tags = f"patient_id={patient_id},ward={ward},bed={bed},unit={unit},scenario={scenario},risk_label={label}"
+        tags = f"patient_id={patient_id},ward={ward},bed={bed},unit={unit},scenario={scenario},risk_label={risk_label}"
         fields = (
             f"hr={int(reading['hr'])}i,"
             f"spo2={int(reading['spo2'])}i,"

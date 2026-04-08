@@ -7,7 +7,7 @@ import time
 from typing import List, Optional
 
 from influxDB import InfluxDBWriter
-from kafka_prod_cons import KafkaProdCons, RiskLabeler
+from kafka_prod_cons import KafkaProdCons, ModelRiskPredictor, RiskLabeler
 from sensor_data_gen import SensorSimulator
 
 
@@ -28,6 +28,9 @@ class PatientMonitoringWorkflow:
         influx_token: str,
         influx_org: str,
         influx_bucket: str,
+        model_path: str,
+        scaler_path: str,
+        label_encoder_path: str,
     ):
         self.kafka_servers = kafka_servers
         self.topic = topic
@@ -36,6 +39,11 @@ class PatientMonitoringWorkflow:
         self.simulators = {pid: SensorSimulator(pid) for pid in self.patients}
         self.influx = InfluxDBWriter(influx_url, influx_token, influx_org, influx_bucket)
         self.kafka = KafkaProdCons(bootstrap_servers=kafka_servers, topic=topic)
+        self.predictor = ModelRiskPredictor(
+            model_path=model_path,
+            scaler_path=scaler_path,
+            label_encoder_path=label_encoder_path,
+        )
         self.stop_event = threading.Event()
 
     def _scenario_for_elapsed(self, elapsed: float, duration: int) -> str:
@@ -71,8 +79,13 @@ class PatientMonitoringWorkflow:
         while not self.stop_event.is_set():
             for message in self.kafka.consumer:
                 reading = message.value
-                score = RiskLabeler.score(reading)
-                label = RiskLabeler.label(score)
+                try:
+                    score, label = self.predictor.predict(reading)
+                except Exception as exc:
+                    # Fail-safe path: keep pipeline alive if model inference fails.
+                    logger.error("Model inference failed, using fallback rules: %s", exc)
+                    score = RiskLabeler.score(reading)
+                    label = RiskLabeler.label(score)
 
                 ok = self.influx.write(reading, score, label)
                 processed += 1
@@ -124,6 +137,9 @@ def main() -> None:
         influx_token=os.getenv("INFLUXDB_TOKEN", "devops-token"),
         influx_org=os.getenv("INFLUXDB_ORG", "devops-org"),
         influx_bucket=os.getenv("INFLUXDB_BUCKET", "patient_vitals"),
+        model_path=os.getenv("MODEL_PATH", "human_vital_sign_model2.pth"),
+        scaler_path=os.getenv("SCALER_PATH", "scaler2.pkl"),
+        label_encoder_path=os.getenv("LABEL_ENCODER_PATH", "label_encoder2.pkl"),
     )
     workflow.run(
         duration=duration_value if duration_value > 0 else None,

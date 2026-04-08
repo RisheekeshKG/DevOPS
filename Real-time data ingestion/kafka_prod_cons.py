@@ -2,14 +2,38 @@
 
 import json
 import logging
+import os
 import time
 from typing import Dict
 
+import joblib
+import numpy as np
+import torch
+import torch.nn as nn
 from kafka import KafkaConsumer, KafkaProducer
 from kafka.errors import NoBrokersAvailable
 
 
 logger = logging.getLogger(__name__)
+
+
+class DNN(nn.Module):
+    """DNN architecture used during training."""
+
+    def __init__(self, input_size: int, hidden_size: int, output_size: int):
+        super().__init__()
+        self.fc1 = nn.Linear(input_size, hidden_size)
+        self.relu = nn.ReLU()
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = self.fc1(x)
+        out = self.relu(out)
+        out = self.fc2(out)
+        out = self.relu(out)
+        out = self.fc3(out)
+        return out
 
 
 class RiskLabeler:
@@ -51,6 +75,102 @@ class RiskLabeler:
         if score >= 0.35:
             return "medium"
         return "low"
+
+
+class ModelRiskPredictor:
+    """Loads trained artifacts (.pth/.pkl) and predicts risk from live readings."""
+
+    def __init__(
+        self,
+        model_path: str,
+        scaler_path: str,
+        label_encoder_path: str,
+        hidden_size: int = 128,
+    ):
+        self.model_path = model_path
+        self.scaler_path = scaler_path
+        self.label_encoder_path = label_encoder_path
+        self.hidden_size = hidden_size
+        self.model = None
+        self.scaler = None
+        self.label_encoder = None
+        self._load_artifacts()
+
+    def _load_artifacts(self) -> None:
+        if not os.path.exists(self.model_path):
+            raise FileNotFoundError(f"Model file not found: {self.model_path}")
+        if not os.path.exists(self.scaler_path):
+            raise FileNotFoundError(f"Scaler file not found: {self.scaler_path}")
+        if not os.path.exists(self.label_encoder_path):
+            raise FileNotFoundError(f"Label encoder file not found: {self.label_encoder_path}")
+
+        self.scaler = joblib.load(self.scaler_path)
+        self.label_encoder = joblib.load(self.label_encoder_path)
+
+        input_size = int(getattr(self.scaler, "n_features_in_", 6))
+        self.model = DNN(input_size=input_size, hidden_size=self.hidden_size, output_size=1)
+        state_dict = torch.load(self.model_path, map_location=torch.device("cpu"))
+        self.model.load_state_dict(state_dict)
+        self.model.eval()
+
+        logger.info(
+            "Loaded model artifacts: model=%s scaler=%s label_encoder=%s input_features=%d",
+            self.model_path,
+            self.scaler_path,
+            self.label_encoder_path,
+            input_size,
+        )
+
+    @staticmethod
+    def _raw_feature_vector(reading: Dict[str, object]) -> np.ndarray:
+        # Match training artifacts: 5 vital-sign features in training order (HR, Temp, SpO2, SysBP, DiaBP).
+        return np.array(
+            [
+                float(reading.get("hr", 72)),
+                float(reading.get("temp", 37.0)),
+                float(reading.get("spo2", 98)),
+                float(reading.get("bp_sys", 112)),
+                float(reading.get("bp_dia", 72)),
+            ],
+            dtype=np.float64,
+        )
+
+    def _aligned_features(self, reading: Dict[str, object]) -> np.ndarray:
+        values = self._raw_feature_vector(reading)
+        expected = int(getattr(self.scaler, "n_features_in_", values.shape[0]))
+        if values.shape[0] == expected:
+            return values.reshape(1, -1)
+
+        if values.shape[0] > expected:
+            logger.warning("Truncating feature vector from %d to %d", values.shape[0], expected)
+            return values[:expected].reshape(1, -1)
+
+        logger.warning("Padding feature vector from %d to %d", values.shape[0], expected)
+        padded = np.zeros(expected, dtype=np.float64)
+        padded[: values.shape[0]] = values
+        return padded.reshape(1, -1)
+
+    def predict(self, reading: Dict[str, object]) -> tuple[float, str]:
+        features = self._aligned_features(reading)
+        scaled = self.scaler.transform(features)
+        inputs = torch.tensor(scaled, dtype=torch.float32)
+
+        with torch.no_grad():
+            logits = self.model(inputs)
+            positive_class_prob = float(torch.sigmoid(logits).item())
+
+        cls = 1 if positive_class_prob >= 0.5 else 0
+        label = str(self.label_encoder.inverse_transform([cls])[0]).strip().lower()
+
+        classes = [str(c).strip().lower() for c in self.label_encoder.classes_]
+        high_idx = next((i for i, name in enumerate(classes) if "high" in name), None)
+        if high_idx is None:
+            # Fallback: preserve previous behavior if no explicit high-risk class name exists.
+            high_risk_score = positive_class_prob
+        else:
+            high_risk_score = positive_class_prob if high_idx == 1 else (1.0 - positive_class_prob)
+
+        return high_risk_score, label
 
 
 class KafkaProdCons:
