@@ -14,7 +14,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"hr\")\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"hr\")\n  |> group(columns: [\"patient_id\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
@@ -45,7 +45,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"spo2\")\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"spo2\")\n  |> group(columns: [\"patient_id\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
@@ -84,7 +84,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"temp\")\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"temp\")\n  |> group(columns: [\"patient_id\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
@@ -115,7 +115,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and (r._field == \"bp_sys\" or r._field == \"bp_dia\"))\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and (r._field == \"bp_sys\" or r._field == \"bp_dia\"))\n  |> group(columns: [\"patient_id\", \"_field\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
@@ -146,7 +146,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"risk_score\")\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"risk_score\")\n  |> group(columns: [\"patient_id\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
@@ -249,7 +249,7 @@
       "datasource": { "type": "influxdb", "uid": "" },
       "targets": [
         {
-          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"ecg\")\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -1h)\n  |> filter(fn: (r) => r._measurement == \"patient_vitals\" and r._field == \"ecg\")\n  |> group(columns: [\"patient_id\"])\n  |> aggregateWindow(every: 10s, fn: last, createEmpty: false)",
           "refId": "A"
         }
       ],
