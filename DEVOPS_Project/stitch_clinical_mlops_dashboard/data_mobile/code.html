@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Clinical MLOps - Data Lineage</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary-container": "#57657a",
+                    "primary-fixed": "#dae2ff",
+                    "on-surface": "#191c1e",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "secondary-container": "#d5e3fc",
+                    "on-tertiary-fixed": "#410002",
+                    "surface-tint": "#0c56d0",
+                    "primary": "#003d9b",
+                    "on-surface-variant": "#434654",
+                    "surface-bright": "#f7f9fb",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#e6e8ea",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "outline-variant": "#c3c6d6",
+                    "tertiary-container": "#b90012",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "surface-dim": "#d8dadc",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-container": "#eceef0",
+                    "primary-container": "#0052cc",
+                    "on-primary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-tertiary": "#ffffff",
+                    "surface": "#f7f9fb",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "surface-container-low": "#f2f4f6",
+                    "on-primary-fixed": "#001848",
+                    "error": "#ba1a1a",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#d5e3fc",
+                    "on-tertiary-container": "#ffc5be",
+                    "inverse-on-surface": "#eff1f3",
+                    "inverse-surface": "#2d3133",
+                    "on-secondary": "#ffffff",
+                    "tertiary-fixed": "#ffdad6",
+                    "inverse-primary": "#b2c5ff",
+                    "tertiary": "#8c000a",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e0e3e5",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "outline": "#737685",
+                    "on-error": "#ffffff",
+                    "on-background": "#191c1e",
+                    "on-primary-container": "#c4d2ff",
+                    "secondary": "#515f74"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface pb-24">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex items-center justify-between px-6 py-4 bg-slate-50/80 dark:bg-slate-950/80 backdrop-blur-xl shadow-sm shadow-blue-900/5">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#003d9b] dark:text-[#0052cc]" data-icon="clinical_notes">clinical_notes</span>
+<h1 class="font-['Manrope'] font-bold text-2xl tracking-tight text-[#003d9b] dark:text-white">Clinical MLOps</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30">
+<img alt="Clinical Director Portrait" data-alt="Close-up professional portrait of a medical professional in a clinical setting with soft natural lighting and sterile background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmCZbp1xdC2g4r2ioBhyrWE2N_0zOK2q2xFOxp2F0wmOe83NtrL4YTSI49xdu0xF0gQqYB0OHLIgSG8TpIZOvvrKT7ces1CsrMy6fdy1eKrU7Grg-Ksh6onw8X6of-iJdECmQNUCQ4vydI6ZZ8AnXxgZ2kzNZtk8J4rTCJSYqvmudSVNsUxjaE5UJNeMY6EipwuPC8y-RPa5iDpPqD3vFxfMlgKqzca3HO8W1lNy0cQhiNs_1wqxQwPP_D4IuuI7RuUqG99_g4DQI"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Editorial Header Section -->
+<section class="mt-8 mb-12">
+<span class="font-label text-[11px] font-semibold uppercase tracking-wider text-primary mb-2 block">System Architecture</span>
+<h2 class="text-4xl font-extrabold tracking-tighter text-on-surface mb-4">Data Lineage</h2>
+<p class="text-on-secondary-container leading-relaxed">Visualizing the telemetry lifecycle from edge ESP32 microcontrollers to predictive patient risk models.</p>
+</section>
+<!-- Lineage Vertical Flow -->
+<div class="relative">
+<!-- Vertical Flow Line (Tonal Layering instead of border) -->
+<div class="absolute left-[23px] top-4 bottom-4 w-1 bg-surface-container-highest rounded-full"></div>
+<!-- Node 1: Edge Source -->
+<div class="relative flex items-start gap-6 mb-16">
+<div class="z-10 w-12 h-12 rounded-xl bg-primary shadow-lg shadow-primary/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary" data-icon="memory">memory</span>
+</div>
+<div class="flex-1 pt-1">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold">ESP32 Edge Gateway</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-widest">Source</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="flex items-center gap-2 mb-3">
+<span class="w-2 h-2 rounded-full bg-green-500"></span>
+<span class="text-xs font-semibold text-on-secondary-container">12 Active Nodes</span>
+</div>
+<p class="text-sm text-on-secondary-container mb-4">Capturing raw PPG and ECG telemetry at 250Hz. Encrypted TLS 1.3 transmission.</p>
+<div class="flex gap-2">
+<div class="bg-surface-container-low px-3 py-2 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="settings_input_antenna">settings_input_antenna</span>
+<span class="text-[11px] font-bold text-on-surface-variant">MQTT</span>
+</div>
+<div class="bg-surface-container-low px-3 py-2 rounded-lg flex items-center gap-2">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="lock">lock</span>
+<span class="text-[11px] font-bold text-on-surface-variant">AES-256</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 2: Ingestion Buffer -->
+<div class="relative flex items-start gap-6 mb-16">
+<div class="z-10 w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="waves">waves</span>
+</div>
+<div class="flex-1 pt-1">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold">Stream Ingestion</h3>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-high text-on-secondary-container text-[10px] font-bold uppercase tracking-widest">Buffer</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Latency</span>
+<div class="text-xl font-bold text-on-surface">14ms</div>
+</div>
+<div>
+<span class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Throughput</span>
+<div class="text-xl font-bold text-on-surface">1.2GB/s</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-outline-variant/10">
+<span class="text-xs font-medium text-on-secondary-container">Kafka Stream • Event Hubs</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 3: Model Inference -->
+<div class="relative flex items-start gap-6 mb-16">
+<div class="z-10 w-12 h-12 rounded-xl bg-primary-container shadow-lg shadow-primary-container/20 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary" data-icon="psychology">psychology</span>
+</div>
+<div class="flex-1 pt-1">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold">Risk Scoring Engine</h3>
+<span class="px-2 py-0.5 rounded-full bg-tertiary-container text-on-tertiary-container text-[10px] font-bold uppercase tracking-widest">ML Logic</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-2xl shadow-sm border border-outline-variant/10">
+<p class="text-sm text-on-secondary-container mb-4">Patient-specific risk vectors calculated via LSTM-Transformer ensemble.</p>
+<div class="p-3 bg-secondary-container/30 rounded-xl mb-3 flex items-center justify-between">
+<span class="text-xs font-bold text-on-secondary-fixed-variant">Model: cardiac-v4.2</span>
+<span class="text-xs font-mono bg-white px-2 py-0.5 rounded border border-outline-variant/20">99.2% Acc.</span>
+</div>
+<div class="flex items-center gap-3">
+<div class="h-1.5 flex-1 bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[75%]"></div>
+</div>
+<span class="text-[10px] font-bold text-primary">LOAD 75%</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Node 4: Dashboard Output -->
+<div class="relative flex items-start gap-6">
+<div class="z-10 w-12 h-12 rounded-xl bg-white border-2 border-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-primary" data-icon="dashboard">dashboard</span>
+</div>
+<div class="flex-1 pt-1">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-lg font-bold">Clinical Dashboard</h3>
+<span class="px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-widest">Active</span>
+</div>
+<div class="overflow-hidden rounded-2xl shadow-lg border border-outline-variant/20">
+<img alt="Dashboard Analytics Preview" class="w-full h-32 object-cover" data-alt="Modern medical analytics interface showing clean line graphs and vital sign metrics in a high-contrast clinical theme" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBr917HgDmtHIPMo1smDQYnP-0pChLmgyMo9qwb55maE6cT8wZabbYMWUia8JY0Q9XRm9I3dbsUq_1Wt4cBY6NhsEayfZKNWiRv4SISrFNIVM27pbuJPzhxJEFndtf_IAOXkdtq7TQGwV1Lgx79BJZg9513I2qo4eR_eIIS4uuRk-WVL8iTCYidb7SG6oyD2mAxNO4Kb9Hj-1kZmunoQVdItkcAncxvs8pt47Dm0oG1OEsY8OMLT4knkVXJogassGfM-Q8p3f-DnBQ"/>
+<div class="bg-surface-container-lowest p-4">
+<div class="flex items-center justify-between">
+<span class="text-[11px] font-bold text-on-surface-variant tracking-tight">Real-time Visualization</span>
+<span class="material-symbols-outlined text-primary text-lg" data-icon="arrow_forward">arrow_forward</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- System Integrity Stats -->
+<section class="mt-16 mb-12">
+<h3 class="text-sm font-bold text-on-surface-variant uppercase tracking-[0.2em] mb-6">Lineage Health</h3>
+<div class="grid grid-cols-1 gap-4">
+<div class="bg-surface-container-low p-6 rounded-3xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+</div>
+<div>
+<div class="text-sm font-bold">Data Provenance</div>
+<div class="text-[11px] text-on-secondary-container">Blockchain verified audit log</div>
+</div>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-primary">VALIDATED</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-3xl flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</div>
+<div>
+<div class="text-sm font-bold">Sync Interval</div>
+<div class="text-[11px] text-on-secondary-container">Across all edge gateways</div>
+</div>
+</div>
+<div class="text-right">
+<span class="text-xs font-bold text-on-surface">500ms</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 pb-safe bg-white/90 dark:bg-slate-900/90 backdrop-blur-2xl shadow-[0_-8px_30px_rgb(0,0,0,0.04)] rounded-t-2xl">
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#0052cc] transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="monitoring">monitoring</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Monitoring</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#0052cc] transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="query_stats">query_stats</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Model Stats</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#dae2ff] dark:bg-[#0040a2] text-[#003d9b] dark:text-[#dae2ff] rounded-xl px-5 py-1.5 transition-all shadow-sm">
+<span class="material-symbols-outlined mb-1" data-icon="database">database</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Data</span>
+</button>
+<button class="flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 px-5 py-1.5 hover:text-[#0052cc] transition-all active:scale-90">
+<span class="material-symbols-outlined mb-1" data-icon="notifications_active">notifications_active</span>
+<span class="font-['Inter'] text-[11px] font-semibold uppercase tracking-wider">Alerts</span>
+</button>
+</nav>
+</body></html>

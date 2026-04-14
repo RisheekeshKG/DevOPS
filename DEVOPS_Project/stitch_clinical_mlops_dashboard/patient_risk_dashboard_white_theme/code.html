@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sentinel Lens | Clinical MLOps Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "secondary": "#515f74",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#b2c5ff",
+                        "surface-tint": "#0c56d0",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "error-container": "#ffdad6",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "on-primary-fixed": "#001848",
+                        "on-surface": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "tertiary": "#8c000a",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#ffdad6",
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#003d9b",
+                        "on-secondary-container": "#57657a",
+                        "secondary-container": "#d5e3fc",
+                        "on-tertiary-container": "#ffc5be",
+                        "primary-container": "#0052cc",
+                        "on-surface-variant": "#434654",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "on-primary-container": "#c4d2ff",
+                        "surface-container-low": "#f2f4f6",
+                        "background": "#f7f9fb",
+                        "on-background": "#191c1e",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "outline": "#737685",
+                        "outline-variant": "#c3c6d6",
+                        "inverse-on-surface": "#eff1f3",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "surface-container-high": "#e6e8ea",
+                        "on-error-container": "#93000a",
+                        "tertiary-container": "#b90012",
+                        "secondary-fixed": "#d5e3fc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .headline { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .ecg-grid {
+            background-size: 20px 20px;
+            background-image: radial-gradient(circle, #e0e3e5 1px, transparent 1px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- NavigationDrawer Component -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 bg-[#f7f9fb] dark:bg-[#191c1e] h-screen w-72 rounded-r-none z-50">
+<div class="px-8 mb-10">
+<span class="font-['Manrope'] text-lg font-bold text-[#003d9b]">Clinical Operations</span>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Tab: Live Monitoring -->
+<a class="group flex items-center px-8 py-3 bg-[#dae2ff] text-[#001945] dark:bg-[#0040a2] dark:text-[#dae2ff] rounded-r-full font-semibold font-['Inter'] text-sm font-medium transition-all duration-200 hover:pl-2" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:translate-x-1 transition-transform" data-icon="vital_signs">vital_signs</span>
+                Live Monitoring
+            </a>
+<a class="group flex items-center px-8 py-3 text-[#44474e] dark:text-[#c3c6d6] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2e31] font-['Inter'] text-sm font-medium transition-all duration-200 hover:pl-2" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:translate-x-1 transition-transform" data-icon="trending_down">trending_down</span>
+                Model Drift
+            </a>
+<a class="group flex items-center px-8 py-3 text-[#44474e] dark:text-[#c3c6d6] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2e31] font-['Inter'] text-sm font-medium transition-all duration-200 hover:pl-2" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:translate-x-1 transition-transform" data-icon="account_tree">account_tree</span>
+                Data Lineage
+            </a>
+<a class="group flex items-center px-8 py-3 text-[#44474e] dark:text-[#c3c6d6] hover:bg-[#f2f4f6] dark:hover:bg-[#2c2e31] font-['Inter'] text-sm font-medium transition-all duration-200 hover:pl-2" href="#">
+<span class="material-symbols-outlined mr-3 group-hover:translate-x-1 transition-transform" data-icon="notification_important">notification_important</span>
+                Alert Logs
+            </a>
+</nav>
+<div class="px-8 mt-auto pt-6 border-t border-outline-variant/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-xs">CMO</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-on-surface">Chief Medical Officer</span>
+<span class="text-[10px] text-outline uppercase tracking-wider">System Admin</span>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 ml-72 pb-16">
+<!-- TopAppBar Component -->
+<header class="flex items-center justify-between px-8 py-4 w-full bg-[#f7f9fb] dark:bg-[#191c1e] docked full-width top-0 sticky z-40">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003d9b]" data-icon="biomedical_extraction">chip_extraction</span>
+<h1 class="text-2xl font-extrabold tracking-tighter text-[#003d9b] dark:text-[#dae2ff] font-['Manrope']">Sentinel Lens</h1>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container-low rounded-full">
+<span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+<span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-widest font-body">Edge Sync: Active</span>
+</div>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="search">search</button>
+<button class="material-symbols-outlined text-outline hover:text-primary transition-colors" data-icon="settings">settings</button>
+</div>
+</header>
+<div class="px-8 pt-8 grid grid-cols-12 gap-8">
+<!-- Main Canvas: Patient Grid -->
+<div class="col-span-12 lg:col-span-8 space-y-8">
+<div class="flex items-baseline justify-between mb-2">
+<h2 class="text-3xl font-bold tracking-tight font-headline text-on-surface">Active Monitoring</h2>
+<span class="text-sm text-outline font-medium">3 Patients Connected</span>
+</div>
+<!-- Patient Card: Elena Rodriguez -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-6">
+<div class="flex gap-4">
+<div class="w-14 h-14 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a middle-aged woman with a calm expression in a clinical setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtfEoRvMls0rizpvwPwnXuZ6Uz23w7Ne7HGLA_hrhJtlEqU5OoL4cIbtrt4pDgRvhBY_yNYIhyHXtnloetzOdVB6fWRwcFXjSc-JpJC6MbgC6kvvjb_TtvbITQcYBWdMR2JuAeBzU3b8lWdr0iIqRnpY_xkzsEjqVxoqPH0eDyDtyMtsvTrChvBkSkVoErJ_YeOFUpXvno-9kVoMnXJjlbE-OEO_ncBT-I66SKPYm3KEmr9ehtRuHh6UnWDAc9kaAM_FBh5j-URAQ"/>
+</div>
+<div>
+<h3 class="text-xl font-bold font-headline text-on-surface">Elena Rodriguez</h3>
+<div class="flex gap-3 mt-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-wider">ID: #44921</span>
+<span class="text-[10px] text-outline font-medium uppercase tracking-wider self-center">Ward 4B | Bed 12</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<span class="text-[10px] font-bold text-error uppercase tracking-widest block mb-1">Status: Attention Required</span>
+<div class="flex gap-1 justify-end">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-error/30"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-error/30"></span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-4 gap-4 mb-6">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="text-[10px] font-bold text-outline uppercase tracking-widest block mb-1">HR (BPM)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-on-surface">112</span>
+<span class="material-symbols-outlined text-error text-sm" data-icon="trending_up">trending_up</span>
+</div>
+<div class="h-8 mt-2 flex items-end gap-0.5">
+<div class="w-1 bg-primary/20 h-3"></div>
+<div class="w-1 bg-primary/20 h-4"></div>
+<div class="w-1 bg-primary/40 h-6"></div>
+<div class="w-1 bg-primary/60 h-8"></div>
+<div class="w-1 bg-error h-10"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="text-[10px] font-bold text-outline uppercase tracking-widest block mb-1">SpO2 (%)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-on-surface">94</span>
+<span class="material-symbols-outlined text-error text-sm" data-icon="trending_down">trending_down</span>
+</div>
+<div class="h-8 mt-2 flex items-end gap-0.5">
+<div class="w-1 bg-primary h-8"></div>
+<div class="w-1 bg-primary h-7"></div>
+<div class="w-1 bg-primary h-8"></div>
+<div class="w-1 bg-primary/60 h-6"></div>
+<div class="w-1 bg-primary/40 h-5"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="text-[10px] font-bold text-outline uppercase tracking-widest block mb-1">Temp (°C)</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-on-surface">38.2</span>
+<span class="material-symbols-outlined text-error text-sm" data-icon="device_thermostat">device_thermostat</span>
+</div>
+<div class="h-8 mt-2 flex items-end gap-0.5">
+<div class="w-1 bg-primary/40 h-4"></div>
+<div class="w-1 bg-primary/40 h-4"></div>
+<div class="w-1 bg-primary/60 h-5"></div>
+<div class="w-1 bg-primary h-7"></div>
+<div class="w-1 bg-error h-9"></div>
+</div>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<span class="text-[10px] font-bold text-outline uppercase tracking-widest block mb-1">Inference Conf.</span>
+<div class="flex items-baseline gap-2">
+<span class="text-2xl font-bold text-on-surface">92%</span>
+<span class="material-symbols-outlined text-primary text-sm" data-icon="verified">verified</span>
+</div>
+<div class="h-8 mt-2 flex items-end gap-0.5">
+<div class="w-full bg-outline-variant/20 h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[92%]"></div>
+</div>
+</div>
+</div>
+</div>
+<div class="ecg-grid border border-outline-variant/30 rounded-lg h-32 relative overflow-hidden">
+<div class="absolute inset-0 flex items-center">
+<svg class="w-full h-24 stroke-primary" preserveaspectratio="none" viewbox="0 0 1000 100">
+<path d="M0,50 L50,50 L60,20 L70,80 L80,50 L150,50 L160,10 L170,90 L180,50 L250,50 L260,20 L270,80 L280,50 L350,50 L360,10 L370,90 L380,50 L450,50 L460,20 L470,80 L480,50 L550,50 L560,10 L570,90 L580,50 L650,50 L660,20 L670,80 L680,50 L750,50 L760,10 L770,90 L780,50 L850,50 L860,20 L870,80 L880,50 L950,50 L960,10 L970,90 L1000,50" fill="none" stroke-width="2"></path>
+</svg>
+</div>
+<div class="absolute top-2 left-2 bg-surface-container-lowest/80 backdrop-blur px-2 py-0.5 rounded text-[9px] font-bold text-primary uppercase tracking-tighter">AD8232 ECG Waveform - Real Time</div>
+</div>
+</div>
+<!-- Patient Grid Continued -->
+<div class="grid grid-cols-2 gap-8">
+<!-- James Chen Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<div class="flex gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="close-up of a smiling young man with short dark hair in a clean medical setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAgJrEdMsbhhSBftB4FtGTqZhjrJ5Xcn3dQUp1nYX0aGcizdQ9FhzwbpipacXfaexDDjmAX8jCiw2GHIlT7_ijbDPOt3LX6cZNWijgiMhJIf5dJ-heAA4MlfqC2JzsAJVJY3cG-RyhhD4d8dzEgMTkvtv1WVccM7rw9WL5Fx5_3mKvSzCB4MyxxfEwrXVUDji5FF88A2U-SxMb8Ln6KaVgWs9oS_VW6OGlrx8aL1YTNKpcBFWsodWmBXHTPBUAiZC-or7RJkL2rAQ"/>
+</div>
+<div>
+<h3 class="text-lg font-bold font-headline text-on-surface">James Chen</h3>
+<span class="text-[10px] text-outline font-medium uppercase tracking-wider">ID: #44955 | ICU-A</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+<span class="text-[11px] font-bold text-outline uppercase">HR</span>
+<span class="text-xl font-bold text-on-surface">78 <span class="text-[10px] font-medium text-outline">bpm</span></span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+<span class="text-[11px] font-bold text-outline uppercase">SpO2</span>
+<span class="text-xl font-bold text-on-surface">99 <span class="text-[10px] font-medium text-outline">%</span></span>
+</div>
+<div class="h-16 ecg-grid rounded border border-outline-variant/10 overflow-hidden relative">
+<svg class="w-full h-12 stroke-primary/60 mt-2" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,50 L50,50 L55,30 L60,70 L65,50 L100,50 L105,20 L110,80 L115,50 L150,50 L155,30 L160,70 L165,50 L200,50 L205,20 L210,80 L215,50 L250,50 L255,30 L260,70 L265,50 L300,50 L305,20 L310,80 L315,50 L350,50 L355,30 L360,70 L365,50 L400,50" fill="none" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Sarah Miller Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<div class="flex gap-4 mb-6">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="portrait of a young woman with a calm expression looking directly at the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPJ_-QwwmRYkuvbTENPKi2uB6W8PaBPG4-u0eu0sVj_2MOsqkmGyxE-tJ2zH525lo-8aptE5rRxs6qWJnZE7JQqNNNY4sLuzkt0ajYVsiu5jiFkoXHiKhJc79wTcKzo5tlWRH6SoCz-d5668OPVV0cTiNOh4QWz9h-TgvJtRKgWODAC49-pO_qU76ngL6myIvf5pnYeF20WSKpQuUvSLBsgppKjCiAVOdsGxWsM4USlS6qoIDwrxIwl53IbMqJSEuH4c22ctsTwZg"/>
+</div>
+<div>
+<h3 class="text-lg font-bold font-headline text-on-surface">Sarah Miller</h3>
+<span class="text-[10px] text-outline font-medium uppercase tracking-wider">ID: #44982 | Ward 2C</span>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+<span class="text-[11px] font-bold text-outline uppercase">HR</span>
+<span class="text-xl font-bold text-on-surface">84 <span class="text-[10px] font-medium text-outline">bpm</span></span>
+</div>
+<div class="flex justify-between items-center border-b border-outline-variant/10 pb-3">
+<span class="text-[11px] font-bold text-outline uppercase">SpO2</span>
+<span class="text-xl font-bold text-on-surface">97 <span class="text-[10px] font-medium text-outline">%</span></span>
+</div>
+<div class="h-16 ecg-grid rounded border border-outline-variant/10 overflow-hidden relative">
+<svg class="w-full h-12 stroke-primary/60 mt-2" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M0,50 L50,50 L55,30 L60,70 L65,50 L100,50 L105,20 L110,80 L115,50 L150,50 L155,30 L160,70 L165,50 L200,50 L205,20 L210,80 L215,50 L250,50 L255,30 L260,70 L265,50 L300,50 L305,20 L310,80 L315,50 L350,50 L355,30 L360,70 L365,50 L400,50" fill="none" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- MLOps Insight Panel -->
+<div class="col-span-12 lg:col-span-4 space-y-8">
+<div class="bg-primary px-8 py-10 rounded-2xl text-on-primary shadow-xl shadow-primary/20 relative overflow-hidden">
+<div class="relative z-10">
+<h2 class="text-xl font-bold font-headline mb-8">Model Performance</h2>
+<div class="space-y-8">
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-[11px] font-bold uppercase tracking-widest opacity-80">Model Confidence Score</span>
+<span class="text-3xl font-bold font-headline">98.4<span class="text-sm opacity-60 ml-1">%</span></span>
+</div>
+<div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+<div class="bg-white h-full w-[98.4%]"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[9px] opacity-60 uppercase font-medium">Drift Threshold: 95%</span>
+<span class="text-[9px] opacity-60 uppercase font-medium">Optimal</span>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-end mb-2">
+<span class="text-[11px] font-bold uppercase tracking-widest opacity-80">Inference Latency (ms)</span>
+<div class="text-right">
+<span class="text-3xl font-bold font-headline">42</span>
+<span class="text-[10px] font-bold bg-white/20 px-1.5 py-0.5 rounded ml-2">P99</span>
+</div>
+</div>
+<div class="w-full bg-white/20 h-2 rounded-full overflow-hidden">
+<div class="bg-white h-full w-[42%]"></div>
+</div>
+<div class="flex justify-between mt-2">
+<span class="text-[9px] opacity-60 uppercase font-medium">SLA: 100ms</span>
+<span class="text-[9px] opacity-60 uppercase font-medium">Normal</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Decorative Background Element -->
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[200px]" data-icon="neurology">neurology</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10">
+<h3 class="text-sm font-bold font-headline text-on-surface mb-6 uppercase tracking-wider">Anomaly Detection Log</h3>
+<div class="space-y-4">
+<div class="flex gap-4 p-3 bg-surface-container-low rounded-lg border-l-4 border-error">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+<div>
+<p class="text-xs font-bold text-on-surface">Arrhythmia Risk Detected</p>
+<p class="text-[10px] text-outline mt-0.5">Patient #44921 • Conf: 91%</p>
+<p class="text-[9px] text-error font-medium mt-1 uppercase tracking-tight">2 mins ago</p>
+</div>
+</div>
+<div class="flex gap-4 p-3 hover:bg-surface-container-low transition-colors rounded-lg cursor-pointer group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="info">info</span>
+<div>
+<p class="text-xs font-bold text-on-surface">Data Refresh Complete</p>
+<p class="text-[10px] text-outline mt-0.5">Sync with Ward 4B Gateway</p>
+<p class="text-[9px] text-outline mt-1 uppercase tracking-tight">15 mins ago</p>
+</div>
+</div>
+<div class="flex gap-4 p-3 hover:bg-surface-container-low transition-colors rounded-lg cursor-pointer group">
+<span class="material-symbols-outlined text-primary group-hover:scale-110 transition-transform" data-icon="cloud_sync">cloud_sync</span>
+<div>
+<p class="text-xs font-bold text-on-surface">Model Update Retrained</p>
+<p class="text-[10px] text-outline mt-0.5">v2.4.1 deployed to edge</p>
+<p class="text-[9px] text-outline mt-1 uppercase tracking-tight">1 hour ago</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-6 rounded-xl border-2 border-dashed border-outline-variant/30 flex flex-col items-center justify-center text-center">
+<span class="material-symbols-outlined text-outline text-4xl mb-3" data-icon="add_circle">add_circle</span>
+<h4 class="text-sm font-bold text-on-surface">Deploy New Patient Node</h4>
+<p class="text-[11px] text-outline mt-1 px-4">Register new ESP32 gateway to stream clinical vital data.</p>
+<button class="mt-4 px-6 py-2 bg-surface-container-high rounded-full text-[10px] font-bold uppercase tracking-widest text-on-surface hover:bg-outline-variant/20 transition-all">Start Onboarding</button>
+</div>
+</div>
+</div>
+<!-- Footer Component -->
+<footer class="fixed bottom-0 w-full flex justify-between items-center px-8 py-3 bg-white/80 backdrop-blur-md border-t-[0.5px] border-[#c3c6d6]/20 z-40 ml-72" style="width: calc(100% - 18rem);">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest text-[#0052cc]">System Health: ESP32 Edge Gateways [Online]</span>
+</div>
+<div class="w-px h-3 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
+<span class="font-['Inter'] text-[11px] uppercase tracking-widest text-[#0052cc]">InfluxDB Stream [Active]</span>
+</div>
+</div>
+<div class="flex gap-6">
+<a class="font-['Inter'] text-[11px] uppercase tracking-widest text-[#74777f] hover:text-[#0052cc] transition-colors cursor-pointer" href="#">Documentation</a>
+<a class="font-['Inter'] text-[11px] uppercase tracking-widest text-[#74777f] hover:text-[#0052cc] transition-colors cursor-pointer" href="#">Support</a>
+<a class="font-['Inter'] text-[11px] uppercase tracking-widest text-[#74777f] hover:text-[#0052cc] transition-colors cursor-pointer" href="#">API Status</a>
+</div>
+</footer>
+</main>
+<!-- Contextual FAB for high-level monitoring screens -->
+<button class="fixed right-8 bottom-20 w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" data-icon="add" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</body></html>

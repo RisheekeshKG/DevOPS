@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Curator MLOps - Active Monitoring</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dae2ff",
+                    "on-tertiary-container": "#ffc5be",
+                    "surface-container-high": "#e6e8ea",
+                    "outline": "#737685",
+                    "on-surface": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#b90012",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-container": "#eceef0",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "primary": "#003d9b",
+                    "secondary-container": "#d5e3fc",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-primary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#410002",
+                    "on-primary-container": "#c4d2ff",
+                    "inverse-primary": "#b2c5ff",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed": "#d5e3fc",
+                    "outline-variant": "#c3c6d6",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary": "#515f74",
+                    "on-secondary-container": "#57657a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#434654",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "primary-container": "#0052cc",
+                    "tertiary": "#8c000a",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "on-primary-fixed": "#001848",
+                    "on-background": "#191c1e",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0c56d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(24px);
+        }
+        .ecg-grid {
+            background-image: linear-gradient(#f0f2f5 1px, transparent 1px), linear-gradient(90deg, #f0f2f5 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky z-50 bg-white dark:bg-slate-900 font-['Manrope'] antialiased">
+<div class="flex justify-between items-center px-12 h-20 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tight text-blue-900 dark:text-white">Clinical Curator MLOps</div>
+<nav class="hidden md:flex gap-8">
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-2 font-semibold" href="#">Monitoring</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Model Stats</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Data</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Alerts</a>
+</nav>
+<div class="flex items-center gap-4">
+<div class="relative">
+<span class="absolute inset-y-0 left-3 flex items-center text-slate-400">
+<span class="material-symbols-outlined text-sm">search</span>
+</span>
+<input class="pl-10 pr-4 py-2 bg-slate-50 dark:bg-slate-800 border-none rounded-full text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Search patients..." type="text"/>
+</div>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-full">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all rounded-full">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<main class="max-w-screen-2xl mx-auto px-12 py-12 flex gap-8">
+<!-- Left: Patient Monitoring Grid -->
+<div class="flex-grow space-y-8">
+<header class="mb-12">
+<h1 class="font-headline text-display-lg text-4xl font-extrabold tracking-tight mb-2">Active Monitoring</h1>
+<p class="text-on-surface-variant font-medium">Real-time physiological data synthesized via AD8232 Acquisition.</p>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-2 gap-8">
+<!-- Patient Card: Elena Rodriguez -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="p-6 flex justify-between items-start border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a middle aged woman with dark hair in a clinical setting soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIGharmxtesLz5aDgBGzu2z9RX0T1F_FOiU6FmgWo6nTV7hVoDxZgrlEQljJacv-0iflofF12ld3UvqHJ-XSylsgt6hIjL83p8BOH7-_uCnphQk3bSfSoeQzty5KZgBqVTgVIwgr1NobVBv2NIG3GGv7Dsb2Pn0UsEezlKoYL3ihac2GCoQ_S7INhi62NfSXQWf6YtvQ0FQUziDCegX_2WvSA_J9dQoYvrUEuy3qhqK_nlx0yE6q5_bY_M88BoNGF8OahjhUab-og"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg">Elena Rodriguez</h3>
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase rounded-full">Stable</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-on-surface-variant text-xs uppercase tracking-widest block mb-1">Ward 4A</span>
+<span class="font-headline font-bold text-primary">Bed 202</span>
+</div>
+</div>
+<div class="p-6 space-y-6">
+<!-- ECG Waveform -->
+<div class="h-32 w-full ecg-grid rounded-lg relative overflow-hidden flex items-center">
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M 0 50 L 50 50 L 55 40 L 60 60 L 65 20 L 70 80 L 75 50 L 150 50 L 155 40 L 160 60 L 165 20 L 170 80 L 175 50 L 250 50 L 255 40 L 260 60 L 265 20 L 270 80 L 275 50 L 400 50" fill="none" stroke="#003d9b" stroke-width="2"></path>
+</svg>
+<div class="absolute top-2 right-2 flex items-center gap-1 text-[10px] font-bold text-primary uppercase">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span> Live AD8232
+                            </div>
+</div>
+<!-- Vitals Sparklines -->
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Heart Rate</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">72</span>
+<span class="text-[10px] text-on-surface-variant mb-1">bpm</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">SpO2</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">98</span>
+<span class="text-[10px] text-on-surface-variant mb-1">%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Temp</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">36.8</span>
+<span class="text-[10px] text-on-surface-variant mb-1">°C</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Card: James Chen -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="p-6 flex justify-between items-start border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="close up headshot of an asian man with glasses looking professionally ahead with clear bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCg-zTxl7QNTHf20nym66zgnfhPYb2636ZyjjLQl5s85FTCHSVowr9KzlLBOp6pKDf0W6NCodCwY-tLsX1M0Kskd1UOLyv1XjH7xPsAOBmwmKHGhL1Fk0GbNe49WIVflxSWWaFzNRK8Jm8lRX-vsG1g7lSz1Kz8rBtbRfvDibBZ6DhE8Tye0gJXZSdwAZkLI7NMIj6GFUrQMef2PKfAWNwTnT7hCGEsQRjYMnqqDpZ3b3bwbZbE0SfqpMgSl_zAq9Dg0rDYYUiXOKk"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg">James Chen</h3>
+<span class="px-2 py-0.5 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase rounded-full">Monitoring</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-on-surface-variant text-xs uppercase tracking-widest block mb-1">Ward 4A</span>
+<span class="font-headline font-bold text-primary">Bed 205</span>
+</div>
+</div>
+<div class="p-6 space-y-6">
+<div class="h-32 w-full ecg-grid rounded-lg relative overflow-hidden flex items-center">
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M 0 50 L 30 50 L 35 30 L 40 70 L 45 10 L 50 90 L 55 50 L 120 50 L 125 30 L 130 70 L 135 10 L 140 90 L 145 50 L 210 50 L 215 30 L 220 70 L 225 10 L 230 90 L 235 50 L 400 50" fill="none" stroke="#003d9b" stroke-width="2"></path>
+</svg>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Heart Rate</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">84</span>
+<span class="text-[10px] text-on-surface-variant mb-1">bpm</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">SpO2</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">97</span>
+<span class="text-[10px] text-on-surface-variant mb-1">%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Temp</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">37.1</span>
+<span class="text-[10px] text-on-surface-variant mb-1">°C</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Card: Sarah Miller -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden group hover:shadow-lg transition-all duration-300">
+<div class="p-6 flex justify-between items-start border-b border-outline-variant/10">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover" data-alt="portrait of a young female healthcare professional with friendly expression in bright medical office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_tjCvqXfJndGk_NAzpPTSHsTkKzAFqs7cIo49r1hdE0zfyW-DQapaOjXEjtRQBpOzu64e138-vXZC2g7RLdM6N7olP3yn_g512K-j0VNPCr5nPOgHopUx8Xx9XQhjVXmOtNgi50EveCcRGVvSkrkYghaY6F8AiPdFPYYeACGgIlqkVt1ZroTWyZa--VxUlJA2j_qOg1RC04ndLp9Ri0-3ZUR_FM3Y1MP1Y18rb6R1iJVtk8cu10kCkxnfasg9QjXXhwSc8cUngF4"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg">Sarah Miller</h3>
+<span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container text-[10px] font-bold uppercase rounded-full">Observation</span>
+</div>
+</div>
+<div class="text-right">
+<span class="text-label-sm text-on-surface-variant text-xs uppercase tracking-widest block mb-1">Ward 4A</span>
+<span class="font-headline font-bold text-primary">Bed 210</span>
+</div>
+</div>
+<div class="p-6 space-y-6">
+<div class="h-32 w-full ecg-grid rounded-lg relative overflow-hidden flex items-center">
+<svg class="absolute inset-0 w-full h-full" preserveaspectratio="none" viewbox="0 0 400 100">
+<path d="M 0 50 L 40 50 L 45 42 L 50 58 L 55 25 L 60 75 L 65 50 L 140 50 L 145 42 L 150 58 L 155 25 L 160 75 L 165 50 L 240 50 L 245 42 L 250 58 L 255 25 L 260 75 L 265 50 L 400 50" fill="none" stroke="#003d9b" stroke-width="2"></path>
+</svg>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Heart Rate</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">68</span>
+<span class="text-[10px] text-on-surface-variant mb-1">bpm</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">SpO2</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">99</span>
+<span class="text-[10px] text-on-surface-variant mb-1">%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">Temp</span>
+<div class="flex items-end gap-2">
+<span class="font-headline font-extrabold text-2xl tracking-tighter">36.5</span>
+<span class="text-[10px] text-on-surface-variant mb-1">°C</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Clinical MLOps -->
+<aside class="w-80 space-y-8">
+<!-- Model Performance Section -->
+<div class="bg-primary text-white p-8 rounded-xl relative overflow-hidden shadow-2xl">
+<div class="absolute -right-12 -top-12 w-32 h-32 bg-primary-container rounded-full opacity-50 blur-3xl"></div>
+<h4 class="font-headline font-bold text-lg mb-6 opacity-80">Model Performance</h4>
+<div class="space-y-6 relative z-10">
+<div>
+<span class="text-[10px] font-bold uppercase tracking-widest opacity-60 block mb-1">Confidence</span>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-extrabold tracking-tighter">98.4</span>
+<span class="text-xl font-bold opacity-60">%</span>
+</div>
+</div>
+<div>
+<span class="text-[10px] font-bold uppercase tracking-widest opacity-60 block mb-1">Latency</span>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-extrabold tracking-tighter">12</span>
+<span class="text-xl font-bold opacity-60">ms</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-8 border-t border-white/10">
+<div class="flex justify-between text-xs font-semibold opacity-70">
+<span>ESP32 Node 01</span>
+<span class="text-primary-fixed">Active</span>
+</div>
+</div>
+</div>
+<!-- Alert Logs Section -->
+<div class="bg-surface-container-lowest p-8 rounded-xl">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-headline font-bold text-lg">Alert Logs</h4>
+<span class="material-symbols-outlined text-outline" data-icon="history">history</span>
+</div>
+<div class="space-y-4">
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-tertiary"></div>
+<div>
+<p class="text-sm font-semibold leading-tight">SpO2 Drop Detected</p>
+<p class="text-xs text-on-surface-variant mt-1">James Chen - Bed 205</p>
+<span class="text-[10px] text-outline font-medium">2 mins ago</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-blue-400"></div>
+<div>
+<p class="text-sm font-semibold leading-tight">Node Re-synchronized</p>
+<p class="text-xs text-on-surface-variant mt-1">InfluxDB Connector stable</p>
+<span class="text-[10px] text-outline font-medium">15 mins ago</span>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="mt-1 w-2 h-2 rounded-full bg-primary"></div>
+<div>
+<p class="text-sm font-semibold leading-tight">New Baseline Set</p>
+<p class="text-xs text-on-surface-variant mt-1">Elena Rodriguez - ECG Norm</p>
+<span class="text-[10px] text-outline font-medium">1 hour ago</span>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-3 bg-surface-container text-primary font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-surface-container-high transition-colors">
+                    View Full Logs
+                </button>
+</div>
+<!-- System Health Tip -->
+<div class="p-6 border border-outline-variant/30 rounded-xl bg-surface-container-low/50">
+<span class="material-symbols-outlined text-primary mb-3" data-icon="lightbulb">lightbulb</span>
+<p class="text-sm font-medium text-on-surface-variant leading-relaxed">
+                    AI confidence increased by <span class="text-primary font-bold">1.2%</span> after optimizing quantization for clinical edge devices.
+                </p>
+</div>
+</aside>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200/20 bg-slate-50 dark:bg-slate-950 font-['Inter'] tracking-wide text-xs">
+<div class="flex justify-between items-center px-12 py-4 w-full">
+<div class="text-slate-400 dark:text-slate-500">
+                System Health: <span class="text-primary font-semibold">ESP32 Operational</span> | <span class="text-primary font-semibold">InfluxDB Connected</span>
+</div>
+<div class="flex gap-8">
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">Status Page</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">API Docs</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

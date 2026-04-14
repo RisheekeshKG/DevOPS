@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dae2ff",
+                    "on-tertiary-container": "#ffc5be",
+                    "surface-container-high": "#e6e8ea",
+                    "outline": "#737685",
+                    "on-surface": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#b90012",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-container": "#eceef0",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "primary": "#003d9b",
+                    "secondary-container": "#d5e3fc",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-primary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#410002",
+                    "on-primary-container": "#c4d2ff",
+                    "inverse-primary": "#b2c5ff",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed": "#d5e3fc",
+                    "outline-variant": "#c3c6d6",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary": "#515f74",
+                    "on-secondary-container": "#57657a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#434654",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "primary-container": "#0052cc",
+                    "tertiary": "#8c000a",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "on-primary-fixed": "#001848",
+                    "on-background": "#191c1e",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0c56d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky z-50 bg-white dark:bg-slate-900 border-b border-slate-200/10">
+<div class="flex justify-between items-center px-12 h-20 w-full max-w-screen-2xl mx-auto font-['Manrope'] antialiased">
+<div class="text-2xl font-bold tracking-tight text-blue-900 dark:text-white">
+                Clinical Curator MLOps
+            </div>
+<nav class="hidden md:flex items-center space-x-8 h-full">
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Monitoring</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Model Stats</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Data</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-2 font-semibold" href="#">Alerts</a>
+</nav>
+<div class="flex items-center space-x-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 p-2 rounded-full hover:bg-slate-50 cursor-pointer">settings</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 p-2 rounded-full hover:bg-slate-50 cursor-pointer">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-screen-2xl mx-auto px-12 py-12">
+<!-- Header & Editorial Scale -->
+<div class="mb-16">
+<h1 class="font-headline text-[3.5rem] font-extrabold text-on-surface leading-tight tracking-tighter">
+                System Health &amp; <span class="text-primary italic">Clinical Alerts</span>
+</h1>
+<p class="text-on-surface-variant text-lg mt-4 max-w-2xl font-light">
+                Synthesis of real-time clinical risks and infrastructure stability. Operational data normalized for clinical intervention.
+            </p>
+</div>
+<!-- Filter Bar: Asymmetric layout -->
+<div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-6">
+<div class="flex flex-wrap gap-3">
+<button class="bg-primary text-white px-6 py-2.5 rounded-xl font-medium flex items-center gap-2 shadow-lg shadow-primary/10">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+                    All Alerts
+                </button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-xl font-medium hover:bg-surface-container-highest transition-colors">
+                    High Risk
+                </button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-xl font-medium hover:bg-surface-container-highest transition-colors">
+                    System Status
+                </button>
+<button class="bg-surface-container-high text-on-surface px-6 py-2.5 rounded-xl font-medium hover:bg-surface-container-highest transition-colors">
+                    Model Drift
+                </button>
+</div>
+<div class="text-right">
+<span class="text-label-sm font-semibold uppercase tracking-widest text-outline block mb-1">Last Sync</span>
+<span class="text-headline-sm font-headline font-bold text-on-surface">14:02:45 <span class="text-sm font-normal text-outline">UTC</span></span>
+</div>
+</div>
+<!-- Alerts Content Canvas -->
+<div class="space-y-6">
+<!-- High Risk Alert: Bento Card Style -->
+<div class="grid grid-cols-12 gap-0 overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10">
+<div class="col-span-1 bg-tertiary-container flex items-center justify-center py-8">
+<span class="material-symbols-outlined text-on-tertiary-container text-4xl" data-weight="fill" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="col-span-11 p-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
+<div class="md:col-span-2">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-tertiary text-on-tertiary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">High Risk</span>
+<span class="text-outline text-xs font-mono">ID: CL-99283</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface">Critical Arrythmia Prediction: Ward 4C</h3>
+<p class="text-on-surface-variant text-sm mt-2 leading-relaxed">Patient #4412 shows persistent ST-segment elevation. ML confidence: 94.2%. Urgent clinical validation required.</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-wider text-outline font-semibold">Timestamp</span>
+<span class="text-on-surface font-medium">10 mins ago</span>
+<span class="text-xs text-outline">13:52:10</span>
+</div>
+<div class="flex justify-end gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface text-sm font-semibold hover:bg-surface-container-low transition-colors">Details</button>
+<button class="px-5 py-2.5 rounded-lg bg-tertiary text-on-tertiary text-sm font-semibold hover:opacity-90 transition-opacity shadow-md">Resolve</button>
+</div>
+</div>
+</div>
+<!-- System Status Alert -->
+<div class="grid grid-cols-12 gap-0 overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10">
+<div class="col-span-1 bg-primary-fixed flex items-center justify-center py-8">
+<span class="material-symbols-outlined text-primary text-4xl">dns</span>
+</div>
+<div class="col-span-11 p-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
+<div class="md:col-span-2">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-primary text-on-primary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">System Status</span>
+<span class="text-outline text-xs font-mono">ID: SYS-042</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface">InfluxDB Write Latency Spike</h3>
+<p class="text-on-surface-variant text-sm mt-2 leading-relaxed">Cluster 'Beta-Alpha' reporting 450ms latency. ESP32 edge devices may experience packet drops. Automatic scaling initiated.</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-wider text-outline font-semibold">Timestamp</span>
+<span class="text-on-surface font-medium">24 mins ago</span>
+<span class="text-xs text-outline">13:38:05</span>
+</div>
+<div class="flex justify-end gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface text-sm font-semibold hover:bg-surface-container-low transition-colors">Logs</button>
+<button class="px-5 py-2.5 rounded-lg bg-primary-container text-white text-sm font-semibold hover:opacity-90 transition-opacity">Resolve</button>
+</div>
+</div>
+</div>
+<!-- Model Drift Alert -->
+<div class="grid grid-cols-12 gap-0 overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10">
+<div class="col-span-1 bg-secondary-container flex items-center justify-center py-8">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl">trending_down</span>
+</div>
+<div class="col-span-11 p-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
+<div class="md:col-span-2">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-secondary text-on-secondary px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Model Drift</span>
+<span class="text-outline text-xs font-mono">ID: ML-D72</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface">Sepsis Model Accuracy Degradation</h3>
+<p class="text-on-surface-variant text-sm mt-2 leading-relaxed">F1-Score dropped below 0.85 threshold for population subgroup 'Geriatric-B'. Data drift detected in feature set 'Blood-Gas-Analysis'.</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-wider text-outline font-semibold">Timestamp</span>
+<span class="text-on-surface font-medium">1 hour ago</span>
+<span class="text-xs text-outline">12:45:12</span>
+</div>
+<div class="flex justify-end gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface text-sm font-semibold hover:bg-surface-container-low transition-colors">Retrain</button>
+<button class="px-5 py-2.5 rounded-lg bg-on-secondary-fixed-variant text-white text-sm font-semibold hover:opacity-90 transition-opacity">Acknowledge</button>
+</div>
+</div>
+</div>
+<!-- High Risk Clinical (Amber) -->
+<div class="grid grid-cols-12 gap-0 overflow-hidden bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10">
+<div class="col-span-1 bg-orange-100 flex items-center justify-center py-8">
+<span class="material-symbols-outlined text-orange-600 text-4xl">emergency_home</span>
+</div>
+<div class="col-span-11 p-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-center">
+<div class="md:col-span-2">
+<div class="flex items-center gap-3 mb-2">
+<span class="bg-orange-600 text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">Clinical Amber</span>
+<span class="text-outline text-xs font-mono">ID: CL-1102</span>
+</div>
+<h3 class="text-xl font-headline font-bold text-on-surface">Hypotension Trend Warning</h3>
+<p class="text-on-surface-variant text-sm mt-2 leading-relaxed">Predictive trend analysis indicates systolic drop for Patient #8821 within next 45 minutes. MAP currently 68mmHg.</p>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-[10px] uppercase tracking-wider text-outline font-semibold">Timestamp</span>
+<span class="text-on-surface font-medium">2 hours ago</span>
+<span class="text-xs text-outline">11:30:55</span>
+</div>
+<div class="flex justify-end gap-3">
+<button class="px-5 py-2.5 rounded-lg border border-outline-variant text-on-surface text-sm font-semibold hover:bg-surface-container-low transition-colors">Monitor</button>
+<button class="px-5 py-2.5 rounded-lg bg-orange-600 text-white text-sm font-semibold hover:opacity-90 transition-opacity">Resolve</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Editorial Data Overview (Bottom Section) -->
+<div class="mt-24 grid grid-cols-1 md:grid-cols-3 gap-12">
+<div class="p-8 bg-surface-container-low rounded-xl">
+<h4 class="font-headline font-bold text-outline text-xs uppercase tracking-widest mb-4">Daily Velocity</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-on-surface">142</span>
+<span class="text-sm text-tertiary font-bold">+12%</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-2">Alert density compared to last 24h window.</p>
+</div>
+<div class="p-8 bg-surface-container-low rounded-xl">
+<h4 class="font-headline font-bold text-outline text-xs uppercase tracking-widest mb-4">Mean Resolve Time</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-on-surface">18.4</span>
+<span class="text-sm text-outline font-medium">min</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-2">Average time from detection to clinical resolution.</p>
+</div>
+<div class="p-8 bg-surface-container-low rounded-xl">
+<h4 class="font-headline font-bold text-outline text-xs uppercase tracking-widest mb-4">Inference Reliability</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-on-surface">99.8</span>
+<span class="text-sm text-primary font-bold">%</span>
+</div>
+<p class="text-on-surface-variant text-xs mt-2">Uptime for clinical inference nodes (Beta Cluster).</p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200/20 bg-slate-50 dark:bg-slate-950 mt-24">
+<div class="flex justify-between items-center px-12 py-8 w-full max-w-screen-2xl mx-auto font-['Inter'] tracking-wide">
+<div class="text-xs text-slate-400 dark:text-slate-500">
+                System Health: ESP32 Operational | InfluxDB Connected
+            </div>
+<div class="flex space-x-8">
+<a class="text-xs text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-colors" href="#">Status Page</a>
+<a class="text-xs text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-colors" href="#">API Docs</a>
+<a class="text-xs text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-colors" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

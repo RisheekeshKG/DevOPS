@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Curator MLOps - Model Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed": "#dae2ff",
+                    "on-tertiary-container": "#ffc5be",
+                    "surface-container-high": "#e6e8ea",
+                    "outline": "#737685",
+                    "on-surface": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "on-error-container": "#93000a",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed-variant": "#0040a2",
+                    "error-container": "#ffdad6",
+                    "tertiary-container": "#b90012",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-container": "#eceef0",
+                    "surface-bright": "#f7f9fb",
+                    "secondary-fixed-dim": "#b9c7df",
+                    "primary": "#003d9b",
+                    "secondary-container": "#d5e3fc",
+                    "on-secondary-fixed": "#0d1c2e",
+                    "on-primary": "#ffffff",
+                    "background": "#f7f9fb",
+                    "on-tertiary-fixed": "#410002",
+                    "on-primary-container": "#c4d2ff",
+                    "inverse-primary": "#b2c5ff",
+                    "surface-dim": "#d8dadc",
+                    "secondary-fixed": "#d5e3fc",
+                    "outline-variant": "#c3c6d6",
+                    "inverse-on-surface": "#eff1f3",
+                    "surface-container-lowest": "#ffffff",
+                    "tertiary-fixed": "#ffdad6",
+                    "secondary": "#515f74",
+                    "on-secondary-container": "#57657a",
+                    "on-tertiary": "#ffffff",
+                    "on-surface-variant": "#434654",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#93000b",
+                    "on-secondary-fixed-variant": "#3a485b",
+                    "primary-container": "#0052cc",
+                    "tertiary": "#8c000a",
+                    "tertiary-fixed-dim": "#ffb4ab",
+                    "on-primary-fixed": "#001848",
+                    "on-background": "#191c1e",
+                    "surface-variant": "#e0e3e5",
+                    "surface-container-low": "#f2f4f6",
+                    "primary-fixed-dim": "#b2c5ff",
+                    "inverse-surface": "#2d3133",
+                    "error": "#ba1a1a",
+                    "surface-tint": "#0c56d0"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky bg-white dark:bg-slate-900 z-50">
+<div class="flex justify-between items-center px-12 h-20 w-full max-w-screen-2xl mx-auto font-['Manrope'] antialiased">
+<div class="text-2xl font-bold tracking-tight text-blue-900 dark:text-white">
+                Clinical Curator MLOps
+            </div>
+<nav class="hidden md:flex gap-8 items-center h-full">
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Monitoring</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-2 font-semibold" href="#">Model Stats</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Data</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Alerts</a>
+</nav>
+<div class="flex items-center gap-6">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input class="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-lg text-sm focus:ring-2 focus:ring-primary w-64" placeholder="Search models..." type="text"/>
+</div>
+<div class="flex gap-4">
+<button class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-all p-2 rounded-full">
+<span class="material-symbols-outlined text-slate-600">settings</span>
+</button>
+<button class="hover:bg-slate-50 dark:hover:bg-slate-800 transition-all p-2 rounded-full">
+<span class="material-symbols-outlined text-slate-600">account_circle</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-screen-2xl mx-auto px-12 py-12">
+<!-- Header Section -->
+<section class="mb-12">
+<div class="flex justify-between items-end">
+<div>
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-widest rounded-full mb-4 inline-block">Production Analytics</span>
+<h1 class="text-5xl font-headline font-extrabold text-on-background tracking-tight">Clinical Predictor v2.4</h1>
+<p class="mt-4 text-on-surface-variant max-w-2xl text-lg leading-relaxed">
+                        Deep dive into performance stability and drift metrics for the cardiac risk assessment engine. Last deployed 14 days ago.
+                    </p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 bg-surface-container-high text-on-surface font-semibold rounded-md flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm">download</span> Export Report
+                    </button>
+<button class="px-6 py-3 bg-gradient-to-br from-primary to-primary-container text-white font-semibold rounded-md shadow-lg shadow-primary/20 hover:opacity-90 transition-opacity">
+                        Retrain Model
+                    </button>
+</div>
+</div>
+</section>
+<!-- Bento Grid Analytics -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Model Drift Chart (Large) -->
+<div class="col-span-8 bg-surface-container-lowest p-8 rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-8">
+<div>
+<h3 class="font-headline font-bold text-xl">Model Drift Analysis</h3>
+<p class="text-sm text-on-surface-variant">Feature distribution shift over the last 30 days</p>
+</div>
+<div class="flex items-center gap-2 text-primary font-bold">
+<span class="text-sm">PSI: 0.084</span>
+<span class="px-2 py-0.5 bg-primary-fixed text-[10px] rounded">STABLE</span>
+</div>
+</div>
+<!-- Simulated Chart -->
+<div class="h-64 flex items-end gap-1 w-full relative">
+<div class="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+<div class="border-t border-outline-variant w-full h-0"></div>
+<div class="border-t border-outline-variant w-full h-0"></div>
+<div class="border-t border-outline-variant w-full h-0"></div>
+<div class="border-t border-outline-variant w-full h-0"></div>
+</div>
+<div class="flex-1 bg-primary/10 hover:bg-primary/30 transition-colors h-[40%] rounded-t-sm relative group/bar">
+<div class="hidden group-hover/bar:block absolute -top-8 left-1/2 -translate-x-1/2 bg-on-background text-white text-[10px] py-1 px-2 rounded">0.02</div>
+</div>
+<div class="flex-1 bg-primary/10 hover:bg-primary/30 transition-colors h-[45%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/30 transition-colors h-[42%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/20 hover:bg-primary/30 transition-colors h-[50%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 hover:bg-primary/30 transition-colors h-[55%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/30 hover:bg-primary/30 transition-colors h-[60%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 hover:bg-primary/30 transition-colors h-[58%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/40 hover:bg-primary/30 transition-colors h-[65%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/50 hover:bg-primary/30 transition-colors h-[70%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/50 hover:bg-primary/30 transition-colors h-[72%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/60 hover:bg-primary/30 transition-colors h-[75%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/70 hover:bg-primary/30 transition-colors h-[80%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/80 hover:bg-primary/30 transition-colors h-[85%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary/90 hover:bg-primary/30 transition-colors h-[82%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary hover:bg-primary/30 transition-colors h-[90%] rounded-t-sm"></div>
+</div>
+<div class="mt-4 flex justify-between text-[10px] font-bold text-outline uppercase tracking-wider">
+<span>Day 1</span>
+<span>Day 15</span>
+<span>Current</span>
+</div>
+</div>
+<!-- Precision/Recall Card -->
+<div class="col-span-4 space-y-6">
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h4 class="text-xs font-bold text-outline uppercase tracking-widest mb-4">Precision Metric</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-primary">0.942</span>
+<span class="text-sm font-semibold text-green-600">+2.4%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h4 class="text-xs font-bold text-outline uppercase tracking-widest mb-4">Recall Metric</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-primary">0.891</span>
+<span class="text-sm font-semibold text-tertiary">-0.8%</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<h4 class="text-xs font-bold text-outline uppercase tracking-widest mb-4">F1 Score</h4>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-headline font-extrabold text-primary">0.916</span>
+<span class="text-sm font-semibold text-green-600">+1.1%</span>
+</div>
+</div>
+</div>
+<!-- Confusion Matrix -->
+<div class="col-span-6 bg-surface-container-lowest p-8 rounded-xl">
+<h3 class="font-headline font-bold text-xl mb-6">Confusion Matrix</h3>
+<div class="grid grid-cols-2 grid-rows-2 gap-4 h-64 relative">
+<!-- Labels -->
+<div class="absolute -left-8 top-1/2 -rotate-90 text-[10px] font-bold text-outline uppercase tracking-widest">Actual</div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-outline uppercase tracking-widest">Predicted</div>
+<div class="bg-primary/10 rounded flex flex-col items-center justify-center border border-primary/20">
+<span class="text-3xl font-extrabold text-primary">1,242</span>
+<span class="text-xs text-on-surface-variant">True Negative</span>
+</div>
+<div class="bg-tertiary-container/30 rounded flex flex-col items-center justify-center border border-tertiary/20">
+<span class="text-3xl font-extrabold text-tertiary">42</span>
+<span class="text-xs text-on-tertiary-fixed-variant">False Positive</span>
+</div>
+<div class="bg-tertiary-container/30 rounded flex flex-col items-center justify-center border border-tertiary/20">
+<span class="text-3xl font-extrabold text-tertiary">18</span>
+<span class="text-xs text-on-tertiary-fixed-variant">False Negative</span>
+</div>
+<div class="bg-primary rounded flex flex-col items-center justify-center shadow-lg">
+<span class="text-3xl font-extrabold text-white">418</span>
+<span class="text-xs text-white/80">True Positive</span>
+</div>
+</div>
+<div class="mt-8 flex gap-6">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-xs font-semibold">High Risk Detected</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-tertiary"></div>
+<span class="text-xs font-semibold">Critical Misclass</span>
+</div>
+</div>
+</div>
+<!-- Inference Latency Histogram -->
+<div class="col-span-6 bg-surface-container-lowest p-8 rounded-xl">
+<div class="flex justify-between items-start mb-6">
+<div>
+<h3 class="font-headline font-bold text-xl">Inference Latency</h3>
+<p class="text-sm text-on-surface-variant">Distribution of p50, p95, and p99 response times</p>
+</div>
+<div class="text-right">
+<div class="text-2xl font-extrabold text-on-background">42ms</div>
+<div class="text-[10px] font-bold text-outline uppercase">Average</div>
+</div>
+</div>
+<div class="h-64 flex items-end gap-1.5 w-full bg-slate-50 p-4 rounded-lg relative">
+<!-- Glassy p99 Indicator -->
+<div class="absolute right-10 top-10 backdrop-blur-md bg-white/60 border border-white p-4 rounded-lg shadow-sm">
+<span class="text-[10px] font-bold text-on-surface-variant uppercase block mb-1">P99 Latency</span>
+<span class="text-lg font-extrabold text-tertiary">148ms</span>
+</div>
+<!-- Bars -->
+<div class="flex-1 bg-secondary-container h-[10%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[15%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[25%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[45%] rounded-sm"></div>
+<div class="flex-1 bg-primary/40 h-[65%] rounded-sm"></div>
+<div class="flex-1 bg-primary/60 h-[85%] rounded-sm"></div>
+<div class="flex-1 bg-primary h-[100%] rounded-sm"></div>
+<div class="flex-1 bg-primary/60 h-[60%] rounded-sm"></div>
+<div class="flex-1 bg-primary/40 h-[40%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[30%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[20%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[15%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[10%] rounded-sm"></div>
+<div class="flex-1 bg-secondary-container h-[5%] rounded-sm"></div>
+</div>
+<div class="mt-4 flex justify-between text-[10px] font-bold text-outline">
+<span>10ms</span>
+<span>50ms (p50)</span>
+<span>100ms</span>
+<span>200ms+</span>
+</div>
+</div>
+<!-- System Health Snapshot -->
+<div class="col-span-12 grid grid-cols-4 gap-8">
+<div class="bg-white border-b-2 border-primary p-6 flex items-center justify-between">
+<div>
+<span class="text-[10px] font-bold text-outline uppercase">Uptime</span>
+<div class="text-xl font-bold">99.998%</div>
+</div>
+<span class="material-symbols-outlined text-green-500">check_circle</span>
+</div>
+<div class="bg-white border-b-2 border-primary p-6 flex items-center justify-between">
+<div>
+<span class="text-[10px] font-bold text-outline uppercase">Requests/sec</span>
+<div class="text-xl font-bold">1,204 RPS</div>
+</div>
+<span class="material-symbols-outlined text-primary">speed</span>
+</div>
+<div class="bg-white border-b-2 border-tertiary p-6 flex items-center justify-between">
+<div>
+<span class="text-[10px] font-bold text-outline uppercase">Error Rate</span>
+<div class="text-xl font-bold">0.02%</div>
+</div>
+<span class="material-symbols-outlined text-tertiary">error</span>
+</div>
+<div class="bg-white border-b-2 border-primary p-6 flex items-center justify-between">
+<div>
+<span class="text-[10px] font-bold text-outline uppercase">Deployment</span>
+<div class="text-xl font-bold">K8s Cluster A</div>
+</div>
+<span class="material-symbols-outlined text-primary">hub</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200/20 bg-slate-50 dark:bg-slate-950 mt-20">
+<div class="flex justify-between items-center px-12 py-8 w-full text-xs font-['Inter'] tracking-wide">
+<div class="text-slate-400 dark:text-slate-500">
+                System Health: ESP32 Operational | InfluxDB Connected
+            </div>
+<div class="flex gap-8">
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">Status Page</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">API Docs</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300 transition-all" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

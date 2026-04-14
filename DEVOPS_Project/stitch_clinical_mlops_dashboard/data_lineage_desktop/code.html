@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Clinical Curator MLOps - Data Lineage</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed": "#dae2ff",
+                        "on-tertiary-container": "#ffc5be",
+                        "surface-container-high": "#e6e8ea",
+                        "outline": "#737685",
+                        "on-surface": "#191c1e",
+                        "surface": "#f7f9fb",
+                        "on-error-container": "#93000a",
+                        "on-error": "#ffffff",
+                        "on-primary-fixed-variant": "#0040a2",
+                        "error-container": "#ffdad6",
+                        "tertiary-container": "#b90012",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-container": "#eceef0",
+                        "surface-bright": "#f7f9fb",
+                        "secondary-fixed-dim": "#b9c7df",
+                        "primary": "#003d9b",
+                        "secondary-container": "#d5e3fc",
+                        "on-secondary-fixed": "#0d1c2e",
+                        "on-primary": "#ffffff",
+                        "background": "#f7f9fb",
+                        "on-tertiary-fixed": "#410002",
+                        "on-primary-container": "#c4d2ff",
+                        "inverse-primary": "#b2c5ff",
+                        "surface-dim": "#d8dadc",
+                        "secondary-fixed": "#d5e3fc",
+                        "outline-variant": "#c3c6d6",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-fixed": "#ffdad6",
+                        "secondary": "#515f74",
+                        "on-secondary-container": "#57657a",
+                        "on-tertiary": "#ffffff",
+                        "on-surface-variant": "#434654",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#93000b",
+                        "on-secondary-fixed-variant": "#3a485b",
+                        "primary-container": "#0052cc",
+                        "tertiary": "#8c000a",
+                        "tertiary-fixed-dim": "#ffb4ab",
+                        "on-primary-fixed": "#001848",
+                        "on-background": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-fixed-dim": "#b2c5ff",
+                        "inverse-surface": "#2d3133",
+                        "error": "#ba1a1a",
+                        "surface-tint": "#0c56d0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .lineage-connector {
+            background-image: linear-gradient(90deg, #c3c6d6 50%, transparent 50%);
+            background-size: 8px 1px;
+            background-repeat: repeat-x;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body min-h-screen flex flex-col">
+<!-- TopNavBar -->
+<header class="w-full top-0 sticky bg-white dark:bg-slate-900 z-50">
+<div class="flex justify-between items-center px-12 h-20 w-full max-w-screen-2xl mx-auto font-['Manrope'] antialiased">
+<div class="text-2xl font-bold tracking-tight text-blue-900 dark:text-white">Clinical Curator MLOps</div>
+<nav class="hidden md:flex items-center space-x-8">
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Monitoring</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Model Stats</a>
+<a class="text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-400 pb-2 font-semibold" href="#">Data</a>
+<a class="text-slate-500 dark:text-slate-400 pb-2 hover:text-blue-600 dark:hover:text-blue-300 transition-colors" href="#">Alerts</a>
+</nav>
+<div class="flex items-center space-x-4">
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-all cursor-pointer">settings</span>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined text-slate-500 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-all cursor-pointer">account_circle</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow max-w-screen-2xl mx-auto w-full px-12 py-16">
+<!-- Header Section: Editorial Contrast -->
+<section class="mb-16">
+<div class="flex flex-col gap-2">
+<span class="text-primary font-bold tracking-[0.2em] text-xs uppercase">System Architecture</span>
+<h1 class="font-headline text-[3.5rem] font-extrabold text-on-background leading-tight">Data Lineage</h1>
+<p class="text-on-surface-variant max-w-2xl text-lg mt-4 font-light">
+                    An end-to-end trace of clinical data packets from edge acquisition to real-time inference visualization.
+                </p>
+</div>
+</section>
+<!-- Visual Flow Diagram: Tonal Layering & Bento Grid -->
+<section class="relative grid grid-cols-1 gap-12">
+<!-- Flow Container -->
+<div class="bg-surface-container-low rounded-xl p-12 relative overflow-hidden">
+<!-- Background Decorative Pattern -->
+<div class="absolute inset-0 opacity-[0.03] pointer-events-none" style="background-image: radial-gradient(#003d9b 1px, transparent 1px); background-size: 24px 24px;"></div>
+<!-- The Flow -->
+<div class="relative flex flex-col md:flex-row justify-between items-center gap-4 min-h-[400px]">
+<!-- Node 1: ESP32 Edge Gateways -->
+<div class="flex flex-col items-center group z-10">
+<div class="w-24 h-24 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-[0px_20px_40px_rgba(25,28,30,0.06)] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="memory">memory</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-headline font-bold text-on-surface">ESP32 Edge Gateways</h3>
+<span class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 block">Data Source</span>
+</div>
+</div>
+<div class="hidden md:block flex-grow h-[1px] lineage-connector mx-4 opacity-40"></div>
+<!-- Node 2: InfluxDB -->
+<div class="flex flex-col items-center group z-10">
+<div class="w-24 h-24 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-[0px_20px_40px_rgba(25,28,30,0.06)] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="database">database</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-headline font-bold text-on-surface">InfluxDB</h3>
+<span class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 block">Time-Series Store</span>
+</div>
+</div>
+<div class="hidden md:block flex-grow h-[1px] lineage-connector mx-4 opacity-40"></div>
+<!-- Node 3: Feature Store -->
+<div class="flex flex-col items-center group z-10">
+<div class="w-24 h-24 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-[0px_20px_40px_rgba(25,28,30,0.06)] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="hub">hub</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-headline font-bold text-on-surface">Feature Store</h3>
+<span class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 block">Engineering</span>
+</div>
+</div>
+<div class="hidden md:block flex-grow h-[1px] lineage-connector mx-4 opacity-40"></div>
+<!-- Node 4: ML Inference -->
+<div class="flex flex-col items-center group z-10">
+<div class="w-24 h-24 rounded-full bg-primary flex items-center justify-center shadow-[0px_20px_40px_rgba(0,61,155,0.2)] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-white text-4xl" data-icon="psychology">psychology</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-headline font-bold text-on-surface">ML Inference</h3>
+<span class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 block">Neural Engine</span>
+</div>
+</div>
+<div class="hidden md:block flex-grow h-[1px] lineage-connector mx-4 opacity-40"></div>
+<!-- Node 5: Dashboard -->
+<div class="flex flex-col items-center group z-10">
+<div class="w-24 h-24 rounded-full bg-surface-container-lowest flex items-center justify-center shadow-[0px_20px_40px_rgba(25,28,30,0.06)] group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="monitoring">monitoring</span>
+</div>
+<div class="mt-6 text-center">
+<h3 class="font-headline font-bold text-on-surface">Dashboard</h3>
+<span class="text-[10px] text-primary font-bold tracking-widest uppercase mt-1 block">Visualization</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Stats Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Throughput Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.04)] flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-3 bg-primary-fixed rounded-lg" data-icon="speed">speed</span>
+<span class="text-[10px] font-bold text-primary px-2 py-1 bg-primary-fixed rounded-full">LIVE</span>
+</div>
+<div>
+<h4 class="text-on-surface-variant font-medium text-sm mb-1">Data Throughput</h4>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-4xl font-extrabold text-on-background">1.2</span>
+<span class="text-on-surface-variant font-bold text-xs">GB/sec</span>
+</div>
+</div>
+</div>
+<!-- Latency Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.04)] flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-3 bg-primary-fixed rounded-lg" data-icon="timer">timer</span>
+<span class="text-[10px] font-bold text-primary px-2 py-1 bg-primary-fixed rounded-full">OPTIMAL</span>
+</div>
+<div>
+<h4 class="text-on-surface-variant font-medium text-sm mb-1">End-to-End Latency</h4>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-4xl font-extrabold text-on-background">142</span>
+<span class="text-on-surface-variant font-bold text-xs">ms</span>
+</div>
+</div>
+</div>
+<!-- Gateway Status -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-[0px_20px_40px_rgba(25,28,30,0.04)] flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary p-3 bg-primary-fixed rounded-lg" data-icon="settings_input_antenna">settings_input_antenna</span>
+<div class="flex -space-x-2">
+<div class="w-6 h-6 rounded-full border-2 border-white bg-green-500"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-green-500"></div>
+<div class="w-6 h-6 rounded-full border-2 border-white bg-green-500"></div>
+</div>
+</div>
+<div>
+<h4 class="text-on-surface-variant font-medium text-sm mb-1">Active Edge Gateways</h4>
+<div class="flex items-baseline gap-2">
+<span class="font-headline text-4xl font-extrabold text-on-background">48</span>
+<span class="text-on-surface-variant font-bold text-xs">Units</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Detailed Process Map -->
+<div class="bg-white rounded-xl overflow-hidden shadow-[0px_40px_80px_rgba(25,28,30,0.08)]">
+<div class="px-8 py-6 border-b border-outline-variant/10 flex justify-between items-center">
+<h2 class="font-headline font-bold text-xl text-on-background">Stage Details &amp; Transformations</h2>
+<button class="text-primary font-bold text-sm flex items-center gap-2 hover:opacity-80">
+                        View Detailed Logs <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="p-0">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-[10px] font-bold text-outline tracking-widest uppercase">
+<th class="px-8 py-4">Stage Name</th>
+<th class="px-8 py-4">Status</th>
+<th class="px-8 py-4">Validation</th>
+<th class="px-8 py-4">Last Activity</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-outline-variant/5">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded bg-primary-fixed/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="sensors">sensors</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">ESP32 Acquisition</p>
+<p class="text-xs text-outline">BLE &amp; WiFi Meshing</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-tight">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Streaming
+                                    </span>
+</td>
+<td class="px-8 py-6 text-on-surface-variant font-medium">99.98% Success</td>
+<td class="px-8 py-6 text-outline font-mono">12:04:59:001</td>
+</tr>
+<tr class="border-b border-outline-variant/5">
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded bg-primary-fixed/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="storage">storage</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">InfluxDB Hot Tier</p>
+<p class="text-xs text-outline">Bucketed Time Series</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-50 text-green-700 text-xs font-bold uppercase tracking-tight">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                                        Indexed
+                                    </span>
+</td>
+<td class="px-8 py-6 text-on-surface-variant font-medium">Verified Sum</td>
+<td class="px-8 py-6 text-outline font-mono">12:04:59:004</td>
+</tr>
+<tr>
+<td class="px-8 py-6">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded bg-primary-fixed/30 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="model_training">model_training</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">ML Inference Engine</p>
+<p class="text-xs text-outline">ResNet Clinical Core</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-6">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary-fixed text-primary text-xs font-bold uppercase tracking-tight">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                        Predicting
+                                    </span>
+</td>
+<td class="px-8 py-6 text-on-surface-variant font-medium">μ: 0.94 Precision</td>
+<td class="px-8 py-6 text-outline font-mono">12:04:59:122</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t border-slate-200/20 bg-slate-50 dark:bg-slate-950 mt-auto">
+<div class="flex justify-between items-center px-12 py-4 w-full text-xs font-['Inter'] tracking-wide">
+<div class="text-slate-400 dark:text-slate-500">
+                System Health: ESP32 Operational | InfluxDB Connected
+            </div>
+<div class="flex space-x-6">
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300" href="#">Status Page</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300" href="#">API Docs</a>
+<a class="text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-300" href="#">Support</a>
+</div>
+</div>
+</footer>
+</body></html>

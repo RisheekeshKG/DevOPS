@@ -1,0 +1,153 @@
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    restart: unless-stopped
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  # Optional: Kafka UI for monitoring
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - kafka
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+
+  influxdb:
+    image: influxdb:2.7
+    ports:
+      - "8086:8086"
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin12345
+      DOCKER_INFLUXDB_INIT_ORG: devops-org
+      DOCKER_INFLUXDB_INIT_BUCKET: patient_vitals
+      DOCKER_INFLUXDB_INIT_RETENTION: 168h0m0s
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: devops-token
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - influxdb_config:/etc/influxdb2
+    healthcheck:
+      test: ["CMD", "influx", "ping", "--host", "http://localhost:8086"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 15s
+    restart: unless-stopped
+
+  app:
+    build: .
+    depends_on:
+      kafka:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: sensor-data
+      PATIENT_IDS: P001,P002,P003
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: devops-token
+      INFLUXDB_ORG: devops-org
+      INFLUXDB_BUCKET: patient_vitals
+      WORKFLOW_DURATION_SECONDS: 0
+      WORKFLOW_INTERVAL_SECONDS: 1.0
+    volumes:
+      - model_artifacts:/app/models
+    mem_limit: 256m
+    restart: on-failure
+
+  grafana:
+    image: grafana/grafana:10.4.2
+    depends_on:
+      - influxdb
+    ports:
+      - "3005:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_SECURITY_ALLOW_EMBEDDING: "true"
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: "Viewer"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    restart: unless-stopped
+
+  retrain:
+    build:
+      context: .
+      dockerfile: retrain/Dockerfile
+    depends_on:
+      influxdb:
+        condition: service_healthy
+    environment:
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: devops-token
+      INFLUXDB_ORG: devops-org
+      INFLUXDB_BUCKET: patient_vitals
+      RETRAIN_QUERY_RANGE: "-7d"
+      ORIGINAL_CSV_PATH: /app/human_vital_signs_dataset_2024.csv
+      MODEL_PATH: /app/models/human_vital_sign_model2.pth
+      SCALER_PATH: /app/models/scaler2.pkl
+      LABEL_ENCODER_PATH: /app/models/label_encoder2.pkl
+      RETRAIN_MODE: schedule
+      RETRAIN_INTERVAL_SECONDS: "604800"
+      RETRAIN_INITIAL_DELAY_SECONDS: "60"
+    volumes:
+      - model_artifacts:/app/models
+      - ./human_vital_signs_dataset_2024.csv:/app/human_vital_signs_dataset_2024.csv:ro
+    restart: unless-stopped
+
+  api-bridge:
+    build:
+      context: .
+      dockerfile: api.Dockerfile
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8001:8001"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      KAFKA_TOPIC: sensor-data
+    restart: on-failure
+
+volumes:
+  influxdb_data:
+  influxdb_config:
+  grafana_data:
+  model_artifacts:
+

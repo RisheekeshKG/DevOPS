@@ -1,0 +1,103 @@
+{
+  "annotations": { "list": [] },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "title": "Inference Latency (ms)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 18, "x": 0, "y": 0 },
+      "id": 1,
+      "datasource": { "type": "influxdb", "uid": "" },
+      "targets": [
+        {
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"model_performance\" and r._field == \"latency_ms\")\n  |> aggregateWindow(every: 1s, fn: mean, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineWidth": 2, "fillOpacity": 10 },
+          "unit": "ms"
+        }
+      },
+      "options": {
+        "legend": { "displayMode": "table", "placement": "right", "calcs": ["mean", "last", "max"] }
+      }
+    },
+    {
+      "title": "Requests / Sec",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "id": 2,
+      "datasource": { "type": "influxdb", "uid": "" },
+      "targets": [
+        {
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: v.timeRangeStart, stop: v.timeRangeStop)\n  |> filter(fn: (r) => r._measurement == \"model_performance\" and r._field == \"processed\")\n  |> aggregateWindow(every: 1s, fn: sum, createEmpty: false)",
+          "refId": "A"
+        }
+      ],
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "center",
+        "textMode": "value_and_name"
+      }
+    },
+    {
+      "title": "Model Accuracy History",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "id": 3,
+      "datasource": { "type": "influxdb", "uid": "" },
+      "targets": [
+        {
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"retraining_metrics\" and r._field == \"accuracy\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "green" },
+          "custom": { "lineWidth": 0, "pointSize": 10, "showPoints": "always" },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      }
+    },
+    {
+      "title": "F1 Score History",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+      "id": 4,
+      "datasource": { "type": "influxdb", "uid": "" },
+      "targets": [
+        {
+          "query": "from(bucket: \"patient_vitals\")\n  |> range(start: -30d)\n  |> filter(fn: (r) => r._measurement == \"retraining_metrics\" and r._field == \"f1\")",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "fixed", "fixedColor": "blue" },
+          "custom": { "lineWidth": 0, "pointSize": 10, "showPoints": "always" },
+          "min": 0,
+          "max": 1,
+          "unit": "percentunit"
+        }
+      }
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 39,
+  "time": { "from": "now-6h", "to": "now" },
+  "timezone": "browser",
+  "title": "System Performance & MLOps",
+  "uid": "system-performance-dashboard",
+  "version": 1
+}
